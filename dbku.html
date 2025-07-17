@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card h2 i {
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #4dabf7;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        button {
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+        }
+        
+        .btn-list {
+            background: linear-gradient(to right, #11998e, #38ef7d);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            min-height: 60px;
+            font-size: 1.1rem;
+        }
+        
+        .contact-dev {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 0, 0, 0.2);
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .contact-dev h3 {
+            margin-bottom: 15px;
+            color: #ffdd59;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .contact-item {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+        }
+        
+        .contact-item h4 {
+            margin-bottom: 10px;
+            color: #4dabf7;
+        }
+        
+        .database-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .database-list ul {
+            list-style-type: none;
+        }
+        
+        .database-list li {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .database-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Database Manager</h1>
+            <p class="subtitle">Kelola database nomor telepon dengan aman. Semua data sensitif disimpan di backend untuk keamanan maksimal.</p>
+        </header>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h2><i>📥</i> Tambah Nomor</h2>
+                <div class="form-group">
+                    <label for="addPassword">Password</label>
+                    <input type="password" id="addPassword" placeholder="Masukkan password">
+                </div>
+                <div class="form-group">
+                    <label for="addNumber">Nomor Telepon</label>
+                    <input type="text" id="addNumber" placeholder="Contoh: 628123456789">
+                </div>
+                <button id="addBtn">Tambah ke Database</button>
+                <div class="result" id="addResult"></div>
+            </div>
+            
+            <div class="card">
+                <h2><i>🗑️</i> Hapus Nomor</h2>
+                <div class="form-group">
+                    <label for="delPassword">Password</label>
+                    <input type="password" id="delPassword" placeholder="Masukkan password">
+                </div>
+                <div class="form-group">
+                    <label for="delNumber">Nomor Telepon</label>
+                    <input type="text" id="delNumber" placeholder="Contoh: 628123456789">
+                </div>
+                <button id="delBtn" class="btn-danger">Hapus dari Database</button>
+                <div class="result" id="delResult"></div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: 20px;">
+            <h2><i>📋</i> List Database</h2>
+            <div class="form-group">
+                <label for="listPassword">Password</label>
+                <input type="password" id="listPassword" placeholder="Masukkan password untuk melihat database">
+            </div>
+            <button id="listBtn" class="btn-list">Tampilkan Database</button>
+            <div class="database-list" id="databaseList">
+                <p>Database akan ditampilkan di sini setelah Anda memasukkan password yang valid.</p>
+            </div>
+        </div>
+        
+        <div class="contact-dev">
+            <h3>Hubungi Developer Jika Tidak Memiliki Password</h3>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <h4>Telegram</h4>
+                    <p>@developer_username</p>
+                </div>
+                <div class="contact-item">
+                    <h4>Email</h4>
+                    <p>developer@example.com</p>
+                </div>
+                <div class="contact-item">
+                    <h4>WhatsApp</h4>
+                    <p>+62 812 3456 7890</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Database Manager | Semua data sensitif disimpan aman di backend</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Fungsi untuk menampilkan hasil
+        function showResult(element, message, isSuccess = true) {
+            element.innerHTML = message;
+            element.style.color = isSuccess ? '#38ef7d' : '#ff416c';
+            element.style.fontWeight = '500';
+        }
+        
+        // Fungsi untuk menampilkan loader
+        function showLoader(element) {
+            element.innerHTML = '<div class="loader"></div> Memproses...';
+        }
+        
+        // Simulasi backend (dalam implementasi nyata, ini akan ada di server)
+        async function callBackend(endpoint, data) {
+            // Simulasi delay jaringan
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Simulasi respons backend
+            if (data.password !== "dbku123") {
+                return { success: false, message: "Password salah! Hubungi developer." };
+            }
+            
+            // Simulasi database
+            let database = JSON.parse(localStorage.getItem('database') || { dbny: [] };
+            
+            if (endpoint === 'add') {
+                const number = data.number;
+                if (database.dbny.includes(number)) {
+                    return { success: false, message: `⚠️ Nomor ${number} sudah ada di database.` };
+                }
+                
+                database.dbny.push(number);
+                localStorage.setItem('database', JSON.stringify(database));
+                return { success: true, message: `✅ Nomor ${number} berhasil ditambahkan!` };
+            }
+            
+            if (endpoint === 'del') {
+                const number = data.number;
+                if (!database.dbny.includes(number)) {
+                    return { success: false, message: `⚠️ Nomor ${number} tidak ditemukan di database.` };
+                }
+                
+                database.dbny = database.dbny.filter(n => n !== number);
+                localStorage.setItem('database', JSON.stringify(database));
+                return { success: true, message: `✅ Nomor ${number} berhasil dihapus!` };
+            }
+            
+            if (endpoint === 'list') {
+                if (!database.dbny || database.dbny.length === 0) {
+                    return { success: true, message: '📂 Database kosong.', list: [] };
+                }
+                
+                return { success: true, list: database.dbny };
+            }
+            
+            return { success: false, message: "Aksi tidak valid" };
+        }
+        
+        // Event listeners
+        document.getElementById('addBtn').addEventListener('click', async () => {
+            const password = document.getElementById('addPassword').value;
+            const number = document.getElementById('addNumber').value;
+            const resultElement = document.getElementById('addResult');
+            
+            if (!password || !number) {
+                showResult(resultElement, "⚠️ Password dan nomor harus diisi!", false);
+                return;
+            }
+            
+            showLoader(resultElement);
+            
+            try {
+                // Panggil backend (dalam implementasi nyata, ini akan menggunakan fetch/axios)
+                const response = await callBackend('add', { password, number });
+                showResult(resultElement, response.message, response.success);
+            } catch (error) {
+                showResult(resultElement, "❌ Gagal menambahkan nomor: " + error.message, false);
+            }
+        });
+        
+        document.getElementById('delBtn').addEventListener('click', async () => {
+            const password = document.getElementById('delPassword').value;
+            const number = document.getElementById('delNumber').value;
+            const resultElement = document.getElementById('delResult');
+            
+            if (!password || !number) {
+                showResult(resultElement, "⚠️ Password dan nomor harus diisi!", false);
+                return;
+            }
+            
+            showLoader(resultElement);
+            
+            try {
+                // Panggil backend
+                const response = await callBackend('del', { password, number });
+                showResult(resultElement, response.message, response.success);
+            } catch (error) {
+                showResult(resultElement, "❌ Gagal menghapus nomor: " + error.message, false);
+            }
+        });
+        
+        document.getElementById('listBtn').addEventListener('click', async () => {
+            const password = document.getElementById('listPassword').value;
+            const listElement = document.getElementById('databaseList');
+            
+            if (!password) {
+                listElement.innerHTML = "<p style='color:#ff416c'>⚠️ Password harus diisi!</p>";
+                return;
+            }
+            
+            listElement.innerHTML = '<div class="loader"></div> Memuat database...';
+            
+            try {
+                // Panggil backend
+                const response = await callBackend('list', { password });
+                
+                if (!response.success) {
+                    listElement.innerHTML = `<p style='color:#ff416c'>${response.message}</p>`;
+                    return;
+                }
+                
+                if (!response.list || response.list.length === 0) {
+                    listElement.innerHTML = "<p>📂 Database kosong.</p>";
+                    return;
+                }
+                
+                let html = '<ul>';
+                response.list.forEach((num, index) => {
+                    html += `<li>${index + 1}. ${num}</li>`;
+                });
+                html += '</ul>';
+                listElement.innerHTML = html;
+            } catch (error) {
+                listElement.innerHTML = `<p style='color:#ff416c'>❌ Gagal memuat database: ${error.message}</p>`;
+            }
+        });
+        
+        // Inisialisasi database jika belum ada
+        if (!localStorage.getItem('database')) {
+            localStorage.setItem('database', JSON.stringify({
+                dbny: [
+                    "628123456789",
+                    "628987654321",
+                    "628112233445"
+                ]
+            }));
+        }
+    </script>
+</body>
+</html>
